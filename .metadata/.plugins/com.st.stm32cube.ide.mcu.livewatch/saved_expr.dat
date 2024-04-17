@@ -1,0 +1,16 @@
+Mode
+ADC_RawRead
+angular_position
+set_point
+vfbtopwm
+Vfeedback
+PID.Kp
+PID.Ki
+PID.Kd
+err
+absVfb
+usepwm
+clockwise
+counterclockwise
+QEIReadRaw
+motor2Angle

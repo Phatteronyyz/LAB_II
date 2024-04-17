@@ -45,8 +45,10 @@ DMA_HandleTypeDef hdma_adc1;
 
 UART_HandleTypeDef hlpuart1;
 
+TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim4;
 
 /* USER CODE BEGIN PV */
 int Mode = 0;
@@ -66,6 +68,11 @@ uint16_t ADC_RawRead[2] = {0};
 
 
 arm_pid_instance_f32 PID = {0};
+arm_pid_instance_f32 PID2 = {0};
+
+
+uint32_t QEIReadRaw;
+uint32_t motor2Angle;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -76,8 +83,11 @@ static void MX_LPUART1_UART_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_TIM1_Init(void);
+static void MX_TIM4_Init(void);
 /* USER CODE BEGIN PFP */
-
+void Part_I_PID_ADC();
+void Part_II_QEI();
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -119,6 +129,8 @@ int main(void)
   MX_ADC1_Init();
   MX_TIM3_Init();
   MX_TIM2_Init();
+  MX_TIM1_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
   HAL_ADC_Start_DMA(&hadc1, ADC_RawRead, 2);
@@ -128,13 +140,21 @@ int main(void)
   PID.Kd = 0.000009;
   arm_pid_init_f32(&PID, 0);
 
+  PID2.Kp = 0.0045;
+  PID2.Ki = 0.000035;
+  PID2.Kd = 0.0004;
+  arm_pid_init_f32(&PID2, 0);
+
   HAL_TIM_Base_Start_IT(&htim2);
 
   HAL_TIM_Base_Start(&htim3);
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
+  HAL_TIM_Base_Start(&htim4);
+  HAL_TIM_PWM_Start(&htim4, TIM_CHANNEL_1);
 
-//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10,GPIO_PIN_SET);
-//  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4,GPIO_PIN_RESET);
+
+
+  HAL_TIM_Encoder_Start(&htim1,TIM_CHANNEL_ALL);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -147,6 +167,10 @@ int main(void)
 //	  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, PWM_set);
 
 	  if(Mode == 0) Part_I_PID_ADC();
+	  else if(Mode == 1){
+		  QEIReadRaw = __HAL_TIM_GET_COUNTER(&htim1);
+		  Part_II_QEI();
+	  }
   }
   /* USER CODE END 3 */
 }
@@ -322,6 +346,57 @@ static void MX_LPUART1_UART_Init(void)
 }
 
 /**
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM1_Init(void)
+{
+
+  /* USER CODE BEGIN TIM1_Init 0 */
+
+  /* USER CODE END TIM1_Init 0 */
+
+  TIM_Encoder_InitTypeDef sConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM1_Init 1 */
+
+  /* USER CODE END TIM1_Init 1 */
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 0;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 3071;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI12;
+  sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC1Filter = 0;
+  sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC2Filter = 0;
+  if (HAL_TIM_Encoder_Init(&htim1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM1_Init 2 */
+
+  /* USER CODE END TIM1_Init 2 */
+
+}
+
+/**
   * @brief TIM2 Initialization Function
   * @param None
   * @retval None
@@ -426,6 +501,65 @@ static void MX_TIM3_Init(void)
 }
 
 /**
+  * @brief TIM4 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM4_Init(void)
+{
+
+  /* USER CODE BEGIN TIM4_Init 0 */
+
+  /* USER CODE END TIM4_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
+  /* USER CODE BEGIN TIM4_Init 1 */
+
+  /* USER CODE END TIM4_Init 1 */
+  htim4.Instance = TIM4;
+  htim4.Init.Prescaler = 169;
+  htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim4.Init.Period = 4999;
+  htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_Init(&htim4) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim4, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM4_Init 2 */
+
+  /* USER CODE END TIM4_Init 2 */
+  HAL_TIM_MspPostInit(&htim4);
+
+}
+
+/**
   * Enable DMA controller clock
   */
 static void MX_DMA_Init(void)
@@ -498,50 +632,102 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	if(htim == &htim2)
 	{
-		angular_position = (ADC_RawRead[0] * 359) / 4095;
-		set_point = (ADC_RawRead[1] * 359) / 4095;
+		if(Mode == 0){
+			angular_position = (ADC_RawRead[0] * 359) / 4095;
+			set_point = (ADC_RawRead[1] * 359) / 4095;
+		}
+		else if(Mode == 1){
+			QEIReadRaw = __HAL_TIM_GET_COUNTER(&htim1);
+			angular_position = (QEIReadRaw*360)/3072;
+			set_point = (ADC_RawRead[1] * 359) / 4095;
+		}
+
+
+		clockwise = fmod(fabs(set_point - angular_position), 360);
+		counterclockwise = fmod(360 - fabs(set_point - angular_position), 360);
 	}
 }
 
 void Part_I_PID_ADC(){
+	PID.Kp = 0.01;
+	PID.Ki = 0.0000045;
+	PID.Kd = 0.000009;
+
 	static uint32_t timestamp = 0;
 	if(timestamp < HAL_GetTick())
 	{
 		timestamp = HAL_GetTick() + 10;
 
-		clockwise = fmod(fabs(set_point - angular_position), 360);
-		counterclockwise = fmod(360 - fabs(set_point - angular_position), 360);
-
 		err = set_point - angular_position;
 		Vfeedback = arm_pid_f32(&PID, err);
-		absVfb = fabs(Vfeedback) * 2.5;
+		absVfb = fabs(Vfeedback) *2.5;
 		vfbtopwm = (absVfb * 5000)/12;
 		if(vfbtopwm < 1500 && vfbtopwm > 25) usepwm = 1500;
 		else usepwm = vfbtopwm;
 		__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, usepwm);
 		if(fabs(err) < 7) usepwm = 0;
 
-//		uint16_t errr = set_point - angular_position;
-//		if(errr > 180) errr -= 360;
-//		else if(errr < -180) errr += 360;
-		if(set_point - angular_position > 0 ){ //CW
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10,GPIO_PIN_SET);
-			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4,GPIO_PIN_RESET);
-		}
-		else if(set_point - angular_position < 0 ){ //CCW
-			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10,GPIO_PIN_RESET);
-			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4,GPIO_PIN_SET);
-		}
-//		if(errr > 0){
+		int errr = set_point - angular_position;
+		if(errr > 180) errr -= 360;
+		else if(errr < -180) errr += 360;
+//		if(set_point - angular_position > 0 ){ //CW
 //			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10,GPIO_PIN_SET);
 //			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4,GPIO_PIN_RESET);
 //		}
-//		else if(errr < 0){
+//		else if(set_point - angular_position < 0 ){ //CCW
 //			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10,GPIO_PIN_RESET);
 //			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4,GPIO_PIN_SET);
 //		}
+		if(errr > 0){
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10,GPIO_PIN_SET);
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4,GPIO_PIN_RESET);
+		}
+		else if(errr < 0){
+			HAL_GPIO_WritePin(GPIOA, GPIO_PIN_10,GPIO_PIN_RESET);
+			HAL_GPIO_WritePin(GPIOC, GPIO_PIN_4,GPIO_PIN_SET);
+		}
+
+	}
+
+}
+
+void Part_II_QEI(){
+	static uint32_t timestamp = 0;
+	if(timestamp < HAL_GetTick())
+	{
+		timestamp = HAL_GetTick() + 10;
+
+		err = set_point - angular_position;
+		Vfeedback = arm_pid_f32(&PID2, err);
+
+		absVfb = fabs(Vfeedback) * 2.5;
+		vfbtopwm = (absVfb * 5000) / 5.00;
 
 
+		if(vfbtopwm > 5000) usepwm = 5000;
+		else if (fabs(err) < 1) usepwm = 0;
+		else usepwm = vfbtopwm;
+//		if(fabs(err) < 7) usepwm = 0;
+
+		int errr = set_point - angular_position;
+		if(errr > 180) errr -= 360;
+		else if(errr < -180) errr += 360;
+//		if(set_point - angular_position > 0 ){ //CW
+//			__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, usepwm);
+//			__HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, 0);
+//		}
+//		else if(set_point - angular_position < 0 ){ //CCW
+//			__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
+//			__HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, usepwm);
+//		}
+		if(errr > 0){
+			__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, usepwm);
+			__HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, 0);
+		}
+		else if(errr < 0){
+			__HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, 0);
+			__HAL_TIM_SET_COMPARE(&htim4, TIM_CHANNEL_1, usepwm);
+		}
 
 	}
 
