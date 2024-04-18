@@ -1,6 +1,6 @@
 Middlewares/Third_Party/ARM_CMSIS/Source/BayesFunctions/BayesFunctions.o: \
  ../Middlewares/Third_Party/ARM_CMSIS/Source/BayesFunctions/BayesFunctions.c \
- E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/BayesFunctions/arm_gaussian_naive_bayes_predict_f32.c \
+ C:/Users/TICHABEAR/Documents/GitHub/Lab2_Micro/LAB_II/LAB_2/Source/BayesFunctions/arm_gaussian_naive_bayes_predict_f32.c \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/bayes_functions.h \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/arm_math_types.h \
  ../Drivers/CMSIS/Include/cmsis_compiler.h \
@@ -12,7 +12,7 @@ Middlewares/Third_Party/ARM_CMSIS/Source/BayesFunctions/BayesFunctions.o: \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/statistics_functions.h \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/basic_math_functions.h \
  ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/fast_math_functions.h
-E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/BayesFunctions/arm_gaussian_naive_bayes_predict_f32.c:
+C:/Users/TICHABEAR/Documents/GitHub/Lab2_Micro/LAB_II/LAB_2/Source/BayesFunctions/arm_gaussian_naive_bayes_predict_f32.c:
 ../Middlewares/Third_Party/ARM_CMSIS/Include/dsp/bayes_functions.h:
 ../Middlewares/Third_Party/ARM_CMSIS/Include/arm_math_types.h:
 ../Drivers/CMSIS/Include/cmsis_compiler.h:

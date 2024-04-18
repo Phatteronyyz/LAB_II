@@ -166,10 +166,15 @@ int main(void)
     /* USER CODE BEGIN 3 */
 //	  __HAL_TIM_SET_COMPARE(&htim3, TIM_CHANNEL_1, PWM_set);
 
-	  if(Mode == 0) Part_I_PID_ADC();
+	  if(Mode == 0){
+		  Part_I_PID_ADC();
+	  }
 	  else if(Mode == 1){
 		  QEIReadRaw = __HAL_TIM_GET_COUNTER(&htim1);
 		  Part_II_QEI();
+	  }
+	  else if(Mode == 2){
+		  Part_III_UART();
 	  }
   }
   /* USER CODE END 3 */
@@ -641,18 +646,17 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			angular_position = (QEIReadRaw*360)/3072;
 			set_point = (ADC_RawRead[1] * 359) / 4095;
 		}
+		else if(Mode == 2){
 
 
+		}
 		clockwise = fmod(fabs(set_point - angular_position), 360);
 		counterclockwise = fmod(360 - fabs(set_point - angular_position), 360);
 	}
 }
 
 void Part_I_PID_ADC(){
-	PID.Kp = 0.01;
-	PID.Ki = 0.0000045;
-	PID.Kd = 0.000009;
-
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5,GPIO_PIN_SET);
 	static uint32_t timestamp = 0;
 	if(timestamp < HAL_GetTick())
 	{
@@ -692,6 +696,7 @@ void Part_I_PID_ADC(){
 }
 
 void Part_II_QEI(){
+	HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5,GPIO_PIN_RESET);
 	static uint32_t timestamp = 0;
 	if(timestamp < HAL_GetTick())
 	{
@@ -731,6 +736,14 @@ void Part_II_QEI(){
 
 	}
 
+}
+
+void Part_III_UART(){
+	static uint32_t timestamp = 0;
+	if(timestamp < HAL_GetTick()){
+		HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+		timestamp = HAL_GetTick() + 500;
+	}
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
