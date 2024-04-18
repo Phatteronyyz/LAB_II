@@ -1,4 +1,4 @@
-20:40:28 **** Incremental Build of configuration Debug for project LAB_2 ****
+14:02:56 **** Incremental Build of configuration Debug for project LAB_2 ****
 make -j12 all 
 arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32G474xx -c -I../Core/Inc -I../Drivers/STM32G4xx_HAL_Driver/Inc -I../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32G4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/Third_Party/ARM_CMSIS/CMSIS/Core/Include/ -I../Middlewares/Third_Party/ARM_CMSIS/PrivateInclude/ -I../Middlewares/Third_Party/ARM_CMSIS/Include/ -I../Middlewares/Third_Party/ARM_CMSIS/Include -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/BasicMathFunctions" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/BayesFunctions" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/CommonTables" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/ComplexMathFunctions" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/ControllerFunctions" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/DistanceFunctions" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/FastMathFunctions" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/FilteringFunctions" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/InterpolationFunctions" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/MatrixFunctions" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/QuaternionMathFunctions" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/StatisticsFunctions" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/SupportFunctions" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/SVMFunctions" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/TransformFunctions" -I"E:/Fibo_2_2/FRA222_microcon/LAB_II/LAB_2/Source/WindowFunctions" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
 ../Core/Src/main.c: In function 'main':
@@ -20,11 +20,11 @@ Finished building target: LAB_2.elf
 arm-none-eabi-size  LAB_2.elf 
 arm-none-eabi-objdump -h -S LAB_2.elf  > "LAB_2.list"
    text	   data	    bss	    dec	    hex	filename
-  34196	     92	   2672	  36960	   9060	LAB_2.elf
+  34228	     92	   2672	  36992	   9080	LAB_2.elf
 Finished building: default.size.stdout
  
 Finished building: LAB_2.list
  
 
-20:40:30 Build Finished. 0 errors, 1 warnings. (took 1s.697ms)
+14:02:58 Build Finished. 0 errors, 1 warnings. (took 1s.700ms)
 

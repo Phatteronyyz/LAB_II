@@ -140,7 +140,7 @@ int main(void)
   PID.Kd = 0.000009;
   arm_pid_init_f32(&PID, 0);
 
-  PID2.Kp = 0.0047;
+  PID2.Kp = 0.005;
   PID2.Ki = 0.000035;
   PID2.Kd = 0.00041;
   arm_pid_init_f32(&PID2, 0);
